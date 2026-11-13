@@ -10,6 +10,9 @@ CHANNEL2 = "@y7_store7"
 
 bot = telebot.TeleBot(TOKEN)
 
+# فەرهەنگی دۆخی بەکارهێنەران بۆ وەڵامدانی بێ کێشە
+user_states = {}
+
 # دروستکردنی بنکەی داتای بۆت (Database)
 def init_db():
     conn = sqlite3.connect('bot_database.db')
@@ -71,6 +74,7 @@ def send_welcome(message):
     conn.commit()
     conn.close()
 
+    user_states[user_id] = None
     check_and_route(message.chat.id, user_id, full_name)
 
 def check_and_route(chat_id, user_id, full_name="بەکارهێنەر"):
@@ -131,6 +135,12 @@ def handle_messages(message):
         check_and_route(message.chat.id, user_id, message.from_user.first_name)
         return
 
+    # پشکنینی ئەوەی ئایا بەکارهێنەر لە دۆخی گەڕاندایە
+    if user_states.get(user_id) == "waiting_search":
+        user_states[user_id] = None # پاککردنەوەی دۆخەکە
+        process_search_query(message)
+        return
+
     if text == "👤 پڕۆفایل و پلانی من":
         conn = sqlite3.connect('bot_database.db')
         cursor = conn.cursor()
@@ -183,8 +193,9 @@ def handle_messages(message):
             bot.send_message(message.chat.id, no_plan_msg, parse_mode="Markdown")
             return
 
-        msg = bot.send_message(message.chat.id, "🔍 **تکایە یوزەرنێمی مەبەست بنووسە بۆ پشکنین:**", parse_mode="Markdown")
-        bot.register_next_step_handler(msg, process_search)
+        # چالاککردنی دۆخی چاوەڕوانی یوزەرنێم بۆ ئەم بەکارهێنەرە
+        user_states[user_id] = "waiting_search"
+        bot.send_message(message.chat.id, "🔍 **تکایە یوزەرنێمی مەبەست بنووسە بۆ پشکنین:**", parse_mode="Markdown")
 
     elif text == "⚙️ بەڕێوەبەر (ئەی دەمین)" and user_id == ADMIN_ID:
         markup = types.InlineKeyboardMarkup(row_width=1)
@@ -207,7 +218,7 @@ def show_main_menu(chat_id, user_id):
 
     bot.send_message(chat_id, "🌟 فەرموو لە مێنۆیا سەرەکی بژاردەی دڵخوازی خۆت هەڵبژێرە:", reply_markup=markup)
 
-def process_search(message):
+def process_search_query(message):
     raw_query = message.text.strip()
     if raw_query.startswith("@"):
         query = raw_query
@@ -236,6 +247,7 @@ def process_search(message):
         f"⚡️ دیزاین و پەرەپێدانی تایبەت لەلایەن: @Y7_KRD"
     )
     bot.send_message(message.chat.id, result_text, parse_mode="Markdown")
+    show_main_menu(message.chat.id, user_id)
 
 @bot.callback_query_handler(func=lambda call: call.data in ["admin_add_sub", "admin_zero_sub", "admin_stats", "admin_users_list"] or call.data.startswith("admin_view_user_"))
 def admin_callbacks(call):
@@ -312,10 +324,12 @@ def admin_callbacks(call):
         bot.send_message(call.message.chat.id, user_info, parse_mode="Markdown")
 
     elif call.data == "admin_add_sub":
+        user_states[call.from_user.id] = "waiting_admin_add"
         msg = bot.send_message(call.message.chat.id, "👤 فەرموو **IDـی بەکارهێنەر** بنووسە بۆ زیادکردنی پلان:")
         bot.register_next_step_handler(msg, get_admin_user_id)
 
     elif call.data == "admin_zero_sub":
+        user_states[call.from_user.id] = "waiting_admin_zero"
         msg = bot.send_message(call.message.chat.id, "🔄 فەرموو **IDـی بەکارهێنەر** بنووسە بۆ سفرکردنەوەی (بڕینی) پلانی وی:")
         bot.register_next_step_handler(msg, get_admin_zero_id)
 
@@ -369,5 +383,5 @@ def set_plan_duration(call):
     bot.send_message(call.message.chat.id, f"✅ پلان بۆ ئایدی `{target_id}` تاوەکو ڕێکەوتی **{expiry_str}** چالاک کرا!", parse_mode="Markdown")
 
 if __name__ == "__main__":
-    print("Bot is running in Sorani clean formatting...")
+    print("Bot is running with State management...")
     bot.infinity_polling()
