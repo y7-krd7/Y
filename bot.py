@@ -153,12 +153,12 @@ def handle_messages(message):
 
         profile_text = (
             f"👤 **زانیارییەکانی پڕۆفایلی تایبەتی تۆ:**\n\n"
-            f"🆔 ئایدی: `\u200e{user_id}\u200e`\n"
-            f"📌 یوزەرنێم: \u200e@{message.from_user.username or 'نییە'}\u200e\n"
-            f"📱 ژمارەی تەلەگرام: `\u200e{phone}\u200e`\n"
+            f"🆔 ئایدی: `{user_id}`\n"
+            f"📌 یوزەرنێم: @{message.from_user.username or 'نییە'}\n"
+            f"📱 ژمارەی تەلەگرام: `{phone}`\n"
             f"💎 دۆخی پلانی بەشداربوون: {status_text}\n"
             f"⏳ کاتی بەسەرچوونی پلان: `{expiry}`\n\n"
-            f"🛒 بۆ کڕینی پلان یان نوێکردنەوەی، خێرا پەیوەندی بە \u200e@Y7_KRD\u200e بکە."
+            f"🛒 بۆ کڕینی پلان یان نوێکردنەوەی، خێرا پەیوەندی بە @Y7_KRD بکە."
         )
         bot.send_message(message.chat.id, profile_text, parse_mode="Markdown")
 
@@ -178,12 +178,12 @@ def handle_messages(message):
                 f"━━━━━━━━━━━━━━━━━━━\n\n"
                 f"بەڕێزەکەم، بۆ ئەوەی بتوانیت لەم بەشی گەڕان و پشکنینە کەڵک وەربگریت، پێویستە سەرەتا پلانت هەبێت. \n\n"
                 f"🛒 **بۆ کڕینی پلان و دەستکەوتنی اشتراک، خێرا پەیوەندی بە تیمەکەمان بکە:**\n"
-                f"👉 \u200e@Y7_KRD\u200e"
+                f"👉 @Y7_KRD"
             )
             bot.send_message(message.chat.id, no_plan_msg, parse_mode="Markdown")
             return
 
-        msg = bot.send_message(message.chat.id, "🔍 **تکایە یوزەرنێمەکەت بنووسە**\n(بۆ نموونە: `Y7_KRD` یان `\u200e@Y7_KRD\u200e`):", parse_mode="Markdown")
+        msg = bot.send_message(message.chat.id, "🔍 **تکایە یوزەرنێمی مەبەست بنووسە بۆ پشکنین:**", parse_mode="Markdown")
         bot.register_next_step_handler(msg, process_search)
 
     elif text == "⚙️ بەڕێوەبەر (ئەی دەمین)" and user_id == ADMIN_ID:
@@ -225,14 +225,15 @@ def process_search(message):
 
     result_text = (
         f"━━━━━━━━━━━━━━━━━━━\n"
-        f"🔍 **ئەنجامی پشکنینی پێشکەوتوو بۆ:** `\u200e{query}\u200e`\n"
+        f"🔍 **ئەنجامی پشکنینی پێشکەوتوو**\n"
         f"━━━━━━━━━━━━━━━━━━━\n\n"
+        f"🏷 **یوزەرنێم:** `{query}`\n"
         f"📌 **ناوی تۆمارکراو:** پشکنینی ناوەکی سەرکەوتوو بوو\n"
         f"🔗 **کەناڵ و گروپەکان:** دۆزراوەتەوە بە سەرکەوتوویی\n"
         f"📱 **جۆری ژمارەی تەلەگرام:** پارێزراو و چاودێریکراو\n"
         f"⏳ **مێژووی چالاکبوون:** مێژووی پاشەکەوتکراوی سیستم\n"
         f"💎 **دۆخی گشتی:** ئەکاونتەکە بێ کێشە و چالاکە\n\n"
-        f"⚡️ دیزاین و پەرەپێدانی تایبەت لەلایەن: \u200e@Y7_KRD\u200e"
+        f"⚡️ دیزاین و پەرەپێدانی تایبەت لەلایەن: @Y7_KRD"
     )
     bot.send_message(message.chat.id, result_text, parse_mode="Markdown")
 
@@ -257,7 +258,7 @@ def admin_callbacks(call):
             f"👥 کۆی گشتی بەکارهێنەران: `{total_users}`\n"
             f"📱 کۆنتکت شاندراوەکان: `{total_contacts}`\n"
             f"🔍 کۆی گەڕانەکان: `{total_searches}`\n\n"
-            f"⚙️ بەڕێوەبەر: \u200e@Y7_KRD\u200e"
+            f"⚙️ بەڕێوەبەر: @Y7_KRD"
         )
         bot.answer_callback_query(call.id, "📊 ئامارەکان دەرکەوتن", show_alert=True)
         bot.send_message(call.message.chat.id, stats_summary, parse_mode="Markdown")
@@ -296,14 +297,14 @@ def admin_callbacks(call):
             return
 
         u_id, u_username, u_fullname, u_phone, u_expiry, u_joined = user_row
-        clean_username = f"\u200e@{u_username}\u200e" if u_username and u_username != "بێ_یوزەرنێم" else "بێ یوزەرنێم"
+        clean_username = f"@{u_username}" if u_username and u_username != "بێ_یوزەرنێم" else "بێ یوزەرنێم"
 
         user_info = (
             f"📋 **وردەکاری زانیارییەکانی بەکارهێنەر:**\n\n"
             f"👤 ناوی تەواو: `{u_fullname}`\n"
             f"📌 یوزەرنێم: {clean_username}\n"
-            f"🆔 ئایدی: `\u200e{u_id}\u200e`\n"
-            f"📱 ژمارەی تەلەگرام (کۆنتکت): `\u200e{u_phone}\u200e`\n"
+            f"🆔 ئایدی: `{u_id}`\n"
+            f"📱 ژمارەی تەلەگرام (کۆنتکت): `{u_phone}`\n"
             f"💎 دۆخی پلان: `{u_expiry}`\n"
             f"📅 مێژووی دەستپێک: `{u_joined}`\n"
         )
@@ -325,7 +326,7 @@ def get_admin_user_id(message):
         btn6m = types.InlineKeyboardButton("6 مەهـ (مانگ)", callback_data=f"plan_6m_{target_id}")
         btn1y = types.InlineKeyboardButton("1 ساڵ", callback_data=f"plan_1y_{target_id}")
         markup.add(btn6m, btn1y)
-        bot.send_message(message.chat.id, f"⏳ ماوەی پلان بۆ ئایدی `\u200e{target_id}\u200e` هەڵبژێرە:", reply_markup=markup, parse_mode="Markdown")
+        bot.send_message(message.chat.id, f"⏳ ماوەی پلان بۆ ئایدی `{target_id}` هەڵبژێرە:", reply_markup=markup, parse_mode="Markdown")
     except ValueError:
         bot.send_message(message.chat.id, "❌ ئایدی هەڵەیە! تکایە تەنها ژمارە بنووسە.")
 
@@ -337,7 +338,7 @@ def get_admin_zero_id(message):
         cursor.execute("UPDATE users SET expiry_date = 'None' WHERE user_id = ?", (target_id,))
         conn.commit()
         conn.close()
-        bot.send_message(message.chat.id, f"✅ پلانی ئایدی `\u200e{target_id}\u200e` بە سەرکەوتوویی **سفرکراوەوە (بڕدرا)**!", parse_mode="Markdown")
+        bot.send_message(message.chat.id, f"✅ پلانی ئایدی `{target_id}` بە سەرکەوتوویی **سفرکراوەوە (بڕدرا)**!", parse_mode="Markdown")
     except ValueError:
         bot.send_message(message.chat.id, "❌ ئایدی هەڵەیە!")
 
@@ -365,8 +366,8 @@ def set_plan_duration(call):
     conn.close()
 
     bot.answer_callback_query(call.id, "✅ پلان سەرکەوتووانە چالاک کرا!", show_alert=True)
-    bot.send_message(call.message.chat.id, f"✅ پلان بۆ ئایدی `\u200e{target_id}\u200e` تاوەکو ڕێکەوتی **{expiry_str}** چالاک کرا!", parse_mode="Markdown")
+    bot.send_message(call.message.chat.id, f"✅ پلان بۆ ئایدی `{target_id}` تاوەکو ڕێکەوتی **{expiry_str}** چالاک کرا!", parse_mode="Markdown")
 
 if __name__ == "__main__":
-    print("Bot is running in Sorani with LTR unicode fixes...")
+    print("Bot is running in Sorani clean formatting...")
     bot.infinity_polling()
